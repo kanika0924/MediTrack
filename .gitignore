@@ -1,0 +1,18 @@
+# Maven
+target/
+
+# Local database
+data/
+*.mv.db
+*.trace.db
+
+# IDE settings
+.vscode/
+.idea/
+
+# Java
+*.class
+*.log
+
+# Environment variables
+.env

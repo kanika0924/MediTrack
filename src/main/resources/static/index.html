@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MediTrack</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: Arial, sans-serif; background: #f5f4f0; color: #293b43; margin: 0; }
+    header { background: #345f67; color: white; padding: 24px 7%; }
+    header h1 { margin: 0 0 6px; }
+    nav { display: flex; gap: 10px; flex-wrap: wrap; padding: 15px 7%; background: white; }
+    button { border: 0; border-radius: 8px; background: #416d73; color: white; padding: 11px 15px; cursor: pointer; margin: 3px 0; }
+    button:hover { background: #2e565c; }
+    nav button { background: #e9efed; color: #345f67; }
+    main { max-width: 960px; margin: 25px auto; padding: 0 18px; }
+    .panel { background: white; border-radius: 10px; padding: 24px; margin-bottom: 20px; border: 1px solid #e6e8e4; box-shadow: 0 2px 7px #163b4a0a; }
+    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; }
+    .card { padding: 17px; background: #edf2ef; border-radius: 8px; }
+    .card strong { font-size: 26px; }
+    input, select { padding: 11px; border: 1px solid #ccd9df; border-radius: 7px; margin: 5px 5px 10px 0; max-width: 100%; }
+    label { display: inline-block; margin: 4px 8px 4px 0; }
+    .item { border-bottom: 1px solid #e7edef; padding: 13px 0; }
+    .item h3 { margin-bottom: 7px; }
+    .muted { color: #667d8a; }
+    .warn { color: #b05d00; font-weight: bold; }
+    .hidden { display: none; }
+    small { display: block; margin: 8px 0; }
+    a { color: #416d73; }
+    #message { color: #a04c00; }
+    .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 8px; }
+    .form-grid label { display: flex; flex-direction: column; }
+    .form-grid input, .form-grid select { width: 100%; }
+    h2 { margin-top: 0; font-size: 23px; }
+    h3 { margin-top: 26px; }
+    .profile-box { background: #fafbf9; border: 1px solid #e3e9e5; border-radius: 9px; padding: 17px; margin: 18px 0 25px; }
+    .profile-top { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
+    .profile-top h3 { margin: 0; }
+    .profile-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-top: 16px; }
+    .profile-field { background: white; border: 1px solid #e8ece9; border-radius: 7px; padding: 12px; overflow-wrap: anywhere; }
+    .profile-field span { display: block; color: #687a7b; font-size: 12px; margin-bottom: 6px; }
+    .profile-field strong { font-size: 15px; font-weight: 600; }
+    .profile-form { margin-top: 14px; }
+    .profile-form label { display: flex; flex-direction: column; margin: 0; font-size: 13px; }
+    .profile-form input { width: 100%; }
+    .secondary { background: #e9efed; color: #345f67; }
+    .secondary:hover { background: #dae5e0; }
+    .fine-print { font-size: 12px; color: #6a777a; }
+    @media (max-width: 650px) { .profile-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .panel { padding: 17px; } }
+
+  </style>
+</head>
+<body>
+  <header>
+    <h1>MediTrack</h1>
+    <div>Medication schedules · Stock · Nearby care · Blood tests</div>
+  </header>
+  <nav>
+    <button type="button" onclick="show('dashboard')">Dashboard</button>
+    <button type="button" onclick="show('medicines')">Medicines</button>
+    <button type="button" onclick="show('restock')">Restock</button>
+    <button type="button" onclick="show('nearby')">Nearby Care</button>
+    <button type="button" onclick="show('tests')">Blood Tests</button>
+  </nav>
+  <main>
+    <p id="message" role="status"></p>
+
+    <section id="dashboard" class="panel">
+      <h2 id="welcome">Welcome to MediTrack!</h2>
+      <p class="muted">Your personalized medication dashboard</p>
+      <button type="button" onclick="setUserName()" class="secondary">Edit Name</button>
+      <div class="profile-box">
+        <div class="profile-top">
+          <h3>Patient Details</h3>
+          <button type="button" class="secondary" onclick="toggleProfileForm()">Edit Details</button>
+        </div>
+        <div class="profile-grid">
+          <div class="profile-field"><span>Age</span><strong id="profileAge">—</strong></div>
+          <div class="profile-field"><span>Height</span><strong id="profileHeight">—</strong></div>
+          <div class="profile-field"><span>Weight</span><strong id="profileWeight">—</strong></div>
+          <div class="profile-field"><span>Contact Number</span><strong id="profileContact">—</strong></div>
+        </div>
+        <form id="profileForm" class="profile-form hidden">
+          <div class="form-grid">
+            <label>Age (years)<input name="age" type="number" min="0" max="120" placeholder="e.g. 20"></label>
+            <label>Height (cm)<input name="height" type="number" min="30" max="250" step="0.1" placeholder="e.g. 165"></label>
+            <label>Weight (kg)<input name="weight" type="number" min="1" max="400" step="0.1" placeholder="e.g. 60"></label>
+            <label>Contact number<input name="contact" type="tel" maxlength="20" placeholder="Optional"></label>
+          </div>
+          <button type="submit">Save Details</button>
+          <button type="button" class="secondary" onclick="toggleProfileForm(false)">Cancel</button>
+        </form>
+        <p class="fine-print">Optional demo profile. Details are saved only in this browser, not in the MediTrack database. Avoid entering real personal information on shared computers.</p>
+      </div>
+      <h3>Today's Overview</h3>
+      <div class="cards">
+        <div class="card">Medicines<br><strong id="count">0</strong></div>
+        <div class="card">Low stock<br><strong id="low">0</strong></div>
+        <div class="card">Upcoming tests<br><strong id="upcoming">0</strong></div>
+      </div>
+      <h3>Today's Medicine Schedule</h3>
+      <div id="schedule"></div>
+      <h3>Dose History</h3>
+      <div id="doseHistory"></div>
+      <small>“Missed (not confirmed)” means no dose was recorded for that scheduled time in this browser. It does not prove a dose was missed. Scheduled Taken statuses are saved in this browser; Dose History is saved in the database.</small>
+      <small>Browser reminders work while this page is open and notifications are permitted; they are not guaranteed background alarms.</small>
+    </section>
+
+    <section id="medicines" class="panel hidden">
+      <h2>Medicine Manager</h2>
+      <form id="medicineForm">
+        <div class="form-grid">
+          <label>Medicine name<input name="name" placeholder="Medicine name" required maxlength="120"></label>
+          <label>Condition (optional)<input name="condition" placeholder="e.g. allergy" maxlength="120"></label>
+          <label>Strength<input name="dose" placeholder="e.g. 500 mg" required maxlength="80"></label>
+          <label>Dosage form<select name="unitType" required>
+            <option value="Tablet">Tablet</option><option value="Capsule">Capsule</option>
+            <option value="mL">mL</option><option value="Drops">Drops</option><option value="Other">Other</option>
+          </select></label>
+          <label>Units per dose<input name="perDose" type="number" min="1" value="1" required></label>
+          <label>Frequency<select name="frequency" required>
+            <option value="Once daily">Once daily</option><option value="Twice daily">Twice daily</option>
+            <option value="Three times daily">Three times daily</option><option value="Custom">Custom</option>
+          </select></label>
+          <label>Reminder times (24-hour format, no spaces)<input name="times" placeholder="08:00,20:00" required></label>
+          <label>Current stock<input name="stock" type="number" min="0" placeholder="Units in stock" required></label>
+          <label>Alert days<input name="threshold" type="number" min="0" value="3" required></label>
+          <label>Low-stock alert units<input name="alertStock" type="number" min="0" value="5" required></label>
+        </div>
+        <button type="submit">Add Medicine</button>
+        <small>Enter reminder times according to the medicine instructions you have been given. Frequency is a descriptive field; reminder times determine the schedule.</small>
+      </form>
+      <div id="medicineList"></div>
+    </section>
+
+    <section id="restock" class="panel hidden">
+      <h2>Stock &amp; Restock</h2>
+      <div id="restockList"></div>
+    </section>
+
+    <section id="nearby" class="panel hidden">
+      <h2>Nearby Clinics, Pharmacies &amp; Labs</h2>
+      <p>Search OpenStreetMap for nearby services. Location is handled by the map provider.</p>
+      <button type="button" onclick="nearby('pharmacy')">Find Pharmacies</button>
+      <button type="button" onclick="nearby('clinic')">Find Clinics</button>
+      <button type="button" onclick="nearby('laboratory')">Find Laboratories</button>
+      <p class="muted">Confirm listings and availability with the provider. MediTrack does not process purchases.</p>
+    </section>
+
+    <section id="tests" class="panel hidden">
+      <h2>Blood Test Records</h2>
+      <form id="testForm">
+        <input name="name" placeholder="Test name" required>
+        <label>Test date <input name="date" type="date" required></label>
+        <input name="result" placeholder="Result / notes">
+        <label>Next due <input name="due" type="date" required></label>
+        <button type="submit">Save Test</button>
+      </form>
+      <div id="testList"></div>
+    </section>
+  </main>
+
+  <script>
+    let medicines = [];
+    let tests = [];
+    let doseLogs = [];
+    const $ = id => document.getElementById(id);
+
+    function escapeHTML(value) {
+      return String(value ?? '').replace(/[&<>"']/g, char => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      }[char]));
+    }
+
+    function updateWelcome() {
+      const name = localStorage.getItem('meditrackUserName');
+      $('welcome').textContent = name ? `Welcome back, ${name}!` : 'Welcome to MediTrack!';
+    }
+
+    function setUserName() {
+      const currentName = localStorage.getItem('meditrackUserName') || '';
+      const entered = prompt('Enter your name:', currentName);
+      if (entered === null) return;
+      const name = entered.trim().slice(0, 50);
+      if (name) localStorage.setItem('meditrackUserName', name);
+      else localStorage.removeItem('meditrackUserName');
+      updateWelcome();
+    }
+
+    function getProfile() {
+      try { return JSON.parse(localStorage.getItem('meditrackProfile') || '{}') || {}; }
+      catch (error) { return {}; }
+    }
+
+    function renderProfile() {
+      const p = getProfile();
+      $('profileAge').textContent = p.age ? p.age + ' years' : '—';
+      $('profileHeight').textContent = p.height ? p.height + ' cm' : '—';
+      $('profileWeight').textContent = p.weight ? p.weight + ' kg' : '—';
+      $('profileContact').textContent = p.contact || '—';
+    }
+
+    function toggleProfileForm(force) {
+      const form = $('profileForm');
+      const shouldShow = typeof force === 'boolean' ? force : form.classList.contains('hidden');
+      form.classList.toggle('hidden', !shouldShow);
+      if (shouldShow) {
+        const p = getProfile();
+        for (const field of ['age', 'height', 'weight', 'contact']) {
+          form.elements[field].value = p[field] || '';
+        }
+      }
+    }
+
+    $('profileForm').onsubmit = event => {
+      event.preventDefault();
+      const data = Object.fromEntries(new FormData(event.target));
+      const cleaned = Object.fromEntries(Object.entries(data).map(([k, v]) => [k, String(v).trim()]));
+      localStorage.setItem('meditrackProfile', JSON.stringify(cleaned));
+      renderProfile();
+      toggleProfileForm(false);
+      msg('Patient details saved in this browser.');
+    };
+
+    function show(id) {
+      document.querySelectorAll('main section').forEach(section => section.classList.add('hidden'));
+      $(id).classList.remove('hidden');
+      refresh();
+    }
+
+    async function api(path, options = {}) {
+      const response = await fetch('/api' + path, {
+        headers: { 'Content-Type': 'application/json' },
+        ...options
+      });
+      if (!response.ok) throw new Error(await response.text());
+      return response.status === 204 ? null : response.json();
+    }
+
+    function msg(text) {
+      $('message').textContent = text;
+      setTimeout(() => { if ($('message').textContent === text) $('message').textContent = ''; }, 5000);
+    }
+
+    async function refresh() {
+      try {
+        [medicines, tests, doseLogs] = await Promise.all([
+          api('/medicines'),
+          api('/tests'),
+          api('/dose-logs')
+        ]);
+        render();
+      } catch (error) {
+        msg('Cannot load data: ' + error.message);
+      }
+    }
+
+    function localDateKey(date = new Date()) {
+      return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+    }
+
+    function scheduleStorageKey(id, time) {
+      return `meditrack:taken:${localDateKey()}:${id}:${time}`;
+    }
+
+    async function takeScheduledDose(id, time) {
+      if (localStorage.getItem(scheduleStorageKey(id, time)) === 'yes') {
+        msg('This scheduled dose is already marked Taken.');
+        return;
+      }
+      if (!confirm('Record this scheduled dose as taken? This will subtract units from stock.')) return;
+      try {
+        await api('/medicines/' + id + '/taken', { method: 'POST' });
+        localStorage.setItem(scheduleStorageKey(id, time), 'yes');
+        await refresh();
+        msg('Scheduled dose marked Taken.');
+      } catch (error) { msg(error.message); }
+    }
+
+    function render() {
+      const today = new Date();
+      const localToday = localDateKey(today);
+      const currentTime = today.toTimeString().slice(0, 5);
+      const isLow = m => Number(m.DAYS_LEFT) <= Number(m.THRESHOLD) ||
+        (m.ALERT_STOCK != null && Number(m.STOCK) <= Number(m.ALERT_STOCK));
+
+      $('count').textContent = medicines.length;
+      $('low').textContent = medicines.filter(isLow).length;
+      $('upcoming').textContent = tests.filter(t => t.NEXT_DUE >= localToday).length;
+
+      $('medicineList').innerHTML = medicines.map(m => `
+        <div class="item">
+          <h3>${escapeHTML(m.NAME)}</h3>
+          <p><b>Condition:</b> ${escapeHTML(m.CONDITION_NAME || 'Not specified')}</p>
+          <p><b>Strength:</b> ${escapeHTML(m.DOSE)}</p>
+          <p><b>Dosage:</b> ${escapeHTML(m.PER_DOSE)} ${escapeHTML(m.UNIT_TYPE || 'unit(s)')} per dose</p>
+          <p><b>Frequency:</b> ${escapeHTML(m.FREQUENCY || 'Not specified')}</p>
+          <p><b>Reminder times:</b> ${escapeHTML(m.TIMES)}</p>
+          <p><b>Available stock:</b> ${escapeHTML(m.STOCK)} units</p>
+          <button type="button" onclick="taken(${Number(m.ID)})">Mark Dose Taken</button>
+          <button type="button" onclick="removeMed(${Number(m.ID)})">Delete</button>
+        </div>
+      `).join('') || 'No medicines added.';
+
+      const dailySchedule = medicines.flatMap(m => String(m.TIMES).split(',').map(time => ({
+        medicine: m,
+        time: time.trim()
+      })));
+      dailySchedule.sort((a, b) => a.time.localeCompare(b.time));
+      $('schedule').innerHTML = dailySchedule.map(item => {
+        const m = item.medicine;
+        const takenForSlot = localStorage.getItem(scheduleStorageKey(m.ID, item.time)) === 'yes';
+        const status = takenForSlot ? 'Taken' : item.time < currentTime ? 'Missed (not confirmed)' : 'Upcoming';
+        return `
+          <div class="item">
+            <h3>${escapeHTML(item.time)} — ${escapeHTML(m.NAME)}</h3>
+            <p><b>Strength:</b> ${escapeHTML(m.DOSE)}</p>
+            <p><b>Dosage:</b> ${escapeHTML(m.PER_DOSE)} ${escapeHTML(m.UNIT_TYPE || 'unit(s)')}</p>
+            <p><b>Condition:</b> ${escapeHTML(m.CONDITION_NAME || 'Not specified')}</p>
+            <p><b>Status:</b> ${status}</p>
+            ${takenForSlot ? '<span class="muted">Dose recorded for this time</span>' : `<button type="button" onclick="takeScheduledDose(${Number(m.ID)}, ${JSON.stringify(item.time).replace(/"/g, '&quot;')})">Mark as Taken</button>`}
+          </div>
+        `;
+      }).join('') || 'No medicines scheduled today.';
+
+      $('restockList').innerHTML = medicines.map(m => `
+        <div class="item">
+          <b>${escapeHTML(m.NAME)}</b> — ${escapeHTML(m.STOCK)} units ·
+          ${Number(m.DAYS_LEFT).toFixed(1)} days remaining
+          ${isLow(m) ? '<span class="warn">LOW STOCK</span>' : ''}
+          <p><button type="button" onclick="restock(${Number(m.ID)})">Add Stock</button></p>
+        </div>
+      `).join('') || 'No stock records.';
+
+      $('testList').innerHTML = tests.map(t => `
+        <div class="item">
+          <b>${escapeHTML(t.NAME)}</b>
+          <p>Test date: ${escapeHTML(t.TEST_DATE)} · Next due: ${escapeHTML(t.NEXT_DUE)}</p>
+          <p class="muted">${escapeHTML(t.RESULT)}</p>
+        </div>
+      `).join('') || 'No tests saved.';
+
+      $('doseHistory').innerHTML = doseLogs.slice(0, 20).map(log => `
+        <div class="item">
+          <b>${escapeHTML(log.MEDICINE_NAME)}</b>
+          <p class="muted">Recorded taken at: ${escapeHTML(log.TAKEN_AT)}</p>
+        </div>
+      `).join('') || 'No doses recorded yet.';
+    }
+
+    $('medicineForm').onsubmit = async event => {
+      event.preventDefault();
+      try {
+        const details = Object.fromEntries(new FormData(event.target));
+        details.times = details.times.replace(/\s+/g, '');
+        await api('/medicines', { method: 'POST', body: JSON.stringify(details) });
+        event.target.reset();
+        await refresh();
+        msg('Medicine added successfully.');
+      } catch (error) { msg(error.message); }
+    };
+
+    $('testForm').onsubmit = async event => {
+      event.preventDefault();
+      try {
+        const details = Object.fromEntries(new FormData(event.target));
+        await api('/tests', { method: 'POST', body: JSON.stringify(details) });
+        event.target.reset();
+        await refresh();
+        msg('Blood test saved.');
+      } catch (error) { msg(error.message); }
+    };
+
+    async function taken(id) {
+      if (!confirm('Record this dose as taken? This will subtract units from stock.')) return;
+      try {
+        await api('/medicines/' + id + '/taken', { method: 'POST' });
+        await refresh();
+        msg('Dose recorded.');
+      } catch (error) { msg(error.message); }
+    }
+
+    async function removeMed(id) {
+      if (!confirm('Delete this medicine and its dose history?')) return;
+      try {
+        await api('/medicines/' + id, { method: 'DELETE' });
+        await refresh();
+      } catch (error) { msg(error.message); }
+    }
+
+    async function restock(id) {
+      const quantity = prompt('How many units are you adding?');
+      if (quantity === null) return;
+      try {
+        await api('/medicines/' + id + '/restock', {
+          method: 'POST', body: JSON.stringify({ quantity })
+        });
+        await refresh();
+        msg('Stock updated.');
+      } catch (error) { msg(error.message); }
+    }
+
+    function nearby(type) {
+      window.open('https://www.openstreetmap.org/search?query=' +
+        encodeURIComponent(type + ' near me'), '_blank', 'noopener');
+    }
+
+    const alerted = new Set();
+    setInterval(() => {
+      const now = new Date();
+      const hh = now.toTimeString().slice(0, 5);
+      const day = now.toDateString();
+      medicines.forEach(m => {
+        const key = day + ':' + m.ID + ':' + hh;
+        if (String(m.TIMES).split(',').map(t => t.trim()).includes(hh) && !alerted.has(key)) {
+          alerted.add(key);
+          if ('Notification' in window && Notification.permission === 'granted') {
+            new Notification('MediTrack reminder', {
+              body: 'Scheduled medicine: ' + m.NAME + ' (' + m.DOSE + ')'
+            });
+          } else {
+            msg('Medicine reminder: ' + m.NAME);
+          }
+        }
+      });
+    }, 30000);
+
+    if ('Notification' in window && Notification.permission === 'default') {
+      document.addEventListener('click', () => Notification.requestPermission(), { once: true });
+    }
+
+    updateWelcome();
+    renderProfile();
+    refresh();
+  </script>
+</body>
+</html>
