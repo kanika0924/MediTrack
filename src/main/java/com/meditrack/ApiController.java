@@ -55,13 +55,7 @@ public ResponseEntity<?> add(@RequestBody Map<String, Object> p) {
  
 @GetMapping("/dose-logs")
 public List<Map<String, Object>> doseLogs() {
-    return db.queryForList(
-        "SELECT d.id, d.medicine_id, m.name AS medicine_name, " +
-        "d.taken_at " +
-        "FROM dose_logs d " +
-        "JOIN medicines m ON d.medicine_id = m.id " +
-        "ORDER BY d.taken_at DESC"
-    );
+   return db.queryForList("SELECT *, CAST(stock AS DOUBLE PRECISION)/NULLIF(per_dose * (LENGTH(times)-LENGTH(REPLACE(times,',',''))+1),0) AS days_left FROM medicines ORDER BY id DESC");
 }
 @GetMapping("/tests") public List<Map<String,Object>> tests(){return db.queryForList("SELECT * FROM blood_tests ORDER BY next_due");}
  @PostMapping("/tests") public ResponseEntity<?> addTest(@RequestBody Map<String,Object> p){String name=str(p,"name"),date=str(p,"date"),result=str(p,"result"),due=str(p,"due");if(name.isBlank()||!date.matches("\\d{4}-\\d{2}-\\d{2}")||!due.matches("\\d{4}-\\d{2}-\\d{2}"))return ResponseEntity.badRequest().body("Enter a test name and valid dates");db.update("INSERT INTO blood_tests(name,test_date,result,next_due) VALUES(?,?,?,?)",name,date,result,due);return ResponseEntity.ok(Map.of("saved",true));}
