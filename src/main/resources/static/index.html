@@ -245,7 +245,7 @@
     async function refresh() {
       try {
         [medicines, tests, doseLogs] = await Promise.all([
-          api('/medicines'),
+         api('/medicines').then(rows => rows.map(normalizeMedicine)),
           api('/tests'),
           api('/dose-logs')
         ]);
@@ -276,7 +276,23 @@
         msg('Scheduled dose marked Taken.');
       } catch (error) { msg(error.message); }
     }
-
+function normalizeMedicine(m) {
+  return {
+    ...m,
+    ID: m.id,
+    NAME: m.name,
+    DOSE: m.dose,
+    TIMES: m.times,
+    STOCK: m.stock,
+    PER_DOSE: m.per_dose,
+    THRESHOLD: m.threshold,
+    CONDITION_NAME: m.condition_name,
+    FREQUENCY: m.frequency,
+    UNIT_TYPE: m.unit_type,
+    ALERT_STOCK: m.alert_stock,
+    DAYS_LEFT: m.days_left
+  };
+}
     function render() {
       const today = new Date();
       const localToday = localDateKey(today);
