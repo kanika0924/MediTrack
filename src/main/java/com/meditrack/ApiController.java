@@ -5,7 +5,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import java.util.*;
 @RestController @RequestMapping("/api") public class ApiController {
  private final JdbcTemplate db; public ApiController(JdbcTemplate db){this.db=db;}
- @GetMapping("/medicines") public List<Map<String,Object>> medicines(){return db.queryForList("SELECT *, CAST(stock AS DOUBLE)/NULLIF(per_dose * (LENGTH(times)-LENGTH(REPLACE(times,',',''))+1),0) AS days_left FROM medicines ORDER BY id DESC");}
+ @GetMapping("/medicines") public List<Map<String,Object>> medicines(){return db.queryForList("SELECT *, CAST(stock AS DOUBLE PRECISION)/NULLIF(per_dose * (LENGTH(times)-LENGTH(REPLACE(times,',',''))+1),0) AS days_left FROM medicines ORDER BY id DESC");}
  
 @PostMapping("/medicines")
 public ResponseEntity<?> add(@RequestBody Map<String, Object> p) {
